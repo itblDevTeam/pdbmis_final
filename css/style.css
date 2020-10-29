@@ -32,6 +32,9 @@ html {
   height: 4rem;
   width: 4rem;
   background-color: #272634;
+  /* background-color: #fff; */
+  border: 1px solid #fff;
+  border-radius: 2px;
   font-size: 3rem;
   margin-right: 50px;
   margin-top: -5px;
@@ -40,6 +43,20 @@ html {
   justify-content: center;
   align-items: center;
 }
+/* .menulines {
+  color: #fff;
+  display: block;
+  height: 4rem;
+  width: 4rem;
+  background-color: #272634;
+  font-size: 3rem;
+  margin-right: 50px;
+  margin-top: -5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
 
 .sidenav {
   height: 100%;
@@ -48,16 +65,14 @@ html {
   top: 0;
   left: 0;
   z-index: 1;
-  /* background-color: #272634; */
   background-color: #000080;
   overflow-x: hidden;
-  /* padding-top: 60px; */
   transition: all 0.5s;
 }
 
 .sidenav a {
   text-decoration: none;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #fff;
   display: block;
   padding: 20px 0 20px 20px;
@@ -67,37 +82,26 @@ html {
 }
 
 .closebtn {
-  /* position: absolute; */
   display: inline-block;
   margin-top: 0;
   padding-top: 0;
-  /* top: 0; */
-  /* right: 25px; */
   padding: 0 !important;
   font-size: 3.5rem !important;
+  height: 40px;
 }
 
 .mainpart {
-  /* height: 100%; */
   width: 100%;
   position: absolute;
-  /* margin-top: 50px; */
-  /* margin-left: 50px; */
   font-size: 1.2rem;
-  /* background-color: lightcyan; */
   transition: left 0.5s;
   overflow-x: auto;
+  left: 0;
 }
 
 .tophead{
   position: relative;
   transition:  left .5s;
+  left: 0;
 }
-
 /* sidebar style ends  */
-
-/* media query for small device starts  */
-/* @media(min-width:575px) and (max-width:767px){
-    
-} */
-/* media query for small device ends  */

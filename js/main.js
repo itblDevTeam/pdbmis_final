@@ -1,8 +1,8 @@
 const openNav = () => {
-  document.getElementById("mySidenav").style.width = "200px";
+  document.getElementById("mySidenav").style.width = "218px";
   // document.getElementById('mainpart').style.top = '500px';
-  document.getElementById("mainpart").style.left = "200px";
-  document.getElementById("tophead").style.left = "200px";
+  document.getElementById("mainpart").style.left = "218px";
+  document.getElementById("tophead").style.left = "218px";
   document.getElementById("bar").style.display = "none";
 
   // document.getElementById('mainpart').style.rigth = '250px';

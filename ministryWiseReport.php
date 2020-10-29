@@ -21,7 +21,7 @@ if (!isset($_SESSION['USERNAME'])) {
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/r/dt/jq-2.1.4,jszip-2.5.0,pdfmake-0.1.18,dt-1.10.9,af-2.0.0,b-1.0.3,b-colvis-1.0.3,b-html5-1.0.3,b-print-1.0.3,se-1.0.1/datatables.min.css" />
-    <title>Zone Wise Report</title>
+    <title>Ministry Wise Report</title>
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- font-awesome link  -->
@@ -53,7 +53,7 @@ if (!isset($_SESSION['USERNAME'])) {
                             $sql = "select BILL_CYCLE_CODE from MIS_BILL_CYCLE_MASTER order by BILL_CYCLE_CODE desc";
                             $parseresults = ociparse($conn, $sql);
                             ociexecute($parseresults);
-                            echo '<select name="P_BILL_CYCLE_CODE" id="bill_cycle" class="custom-select text-size form-control ">';
+                            echo '<select name="P_BILL_CYCLE_CODE" id="bill_cycle" class="custom-select text-size form-control">';
                             echo '<option value="">Select Bill Cycle</option>';
                             while ($row = oci_fetch_assoc($parseresults)) {
                                 echo '<option value=' . $row['BILL_CYCLE_CODE'] . '>' . $row['BILL_CYCLE_CODE'] . '</option>';
@@ -65,38 +65,11 @@ if (!isset($_SESSION['USERNAME'])) {
                         </div>
                         <!-- bill cycle select ends  -->
 
-                        <!-- zone code select starts  -->
-                        <div class="col-lg-3 col-md-3 col-3">
-                            <?PHP
-                            include 'Connection.php';
-                            error_reporting(0);
-                            set_time_limit(1000);
-                            $curs = oci_new_cursor($conn);
-                            $stid = oci_parse($conn, "begin DPG_MINISTRY_REPORT.DPD_ZONE_LIST(:cur_data); end;");
-                            oci_bind_by_name($stid, ":cur_data", $curs, -1, OCI_B_CURSOR);
-                            oci_execute($stid);
-                            oci_execute($curs);
-                            echo '<select name="P_ZONE_CODE" class="custom-select text-size form-control">';
-                            echo '<option value="%" selected>Select Zone</option>';
-                            while (($row = oci_fetch_array($curs, OCI_ASSOC + OCI_RETURN_NULLS)) != false) {
-                                echo '<option value="' . $row['ZONE_CODE'] . '">' . $row['ZONE_NAME'] . '</option>';
-                                $zone_code_result[] = $row['ZONE_CODE'];
-                            }
-                            echo '</select>';
-                            $zone_code = $zone_code_result[0];
-                            oci_free_statement($stid);
-                            oci_free_statement($curs);
-                            oci_close($conn);
-                            ?>
-                        </div>
-                        <!-- zone code select ends  -->
-
                         <!-- submit button starts  -->
                         <div class="col-lg-3 col-md-3 col-3">
                             <input type="submit" class="btn btn-primary text-size" id="submit" name="submit" value="Submit">
                         </div>
                         <!-- submit button ends  -->
-                        
                     </div>
                 </form>
             </div>
@@ -119,8 +92,6 @@ if (!isset($_SESSION['USERNAME'])) {
         <a href="logout.php"><img src="./svg/logout.svg" alt="logo"> Logout</a>
         
         <hr class="sidebar-divider" style="margin-top: 0px!important; margin-bottom: 0px!important; border-top: 1px solid rgba(255,255,255, .5)">
-        
-        <!-- <p><strong style="color: #fff;">Powerd By Isaam Enterprise Limited</strong></p> -->
         <p style="color: #fff;"><center style="color: #fff;">Powered By</center>  <center style="color: #fff;">Isaam Enterprise Limited</center></p>
     </div>
 
@@ -148,7 +119,6 @@ if (!isset($_SESSION['USERNAME'])) {
 
                 // grab value from submit data from url starts
                 $P_BILL_CYCLE_CODE = $_POST['P_BILL_CYCLE_CODE'];
-                $P_ZONE_CODE = $_POST['P_ZONE_CODE'];
                 // grab value from submit data from url ends
 
                 // getMonth
@@ -166,7 +136,6 @@ if (!isset($_SESSION['USERNAME'])) {
                             <strong class='lbl_title' style='font-size: 1.7rem; color:#000;margin-right:1.5rem;'>
                             Bangladesh Power Development Board </strong><br>
                             <label style='font-weight:normal;font-size: 1.4rem; color:#000;'>Ministry Wise Arrear Report</label><br>
-                            <label style='font-weight:normal;font-size: 1.4rem; color:#000;'>(Zone Wise)</label><br>
                             <label style='font-weight:normal;font-size: 1.4rem; color:#000;'>For The Month : " . getMYEAR($P_BILL_CYCLE_CODE) . "</label>
                         </div>
                         <div class='col-lg-2 col-md-2 col-12 pt-4' style='display:flex; justify-content:center; align-items:baseline'>Date:" . date('Y/m/d') . "</div>
@@ -176,29 +145,25 @@ if (!isset($_SESSION['USERNAME'])) {
 
                 // execute query starts
                 $curs = oci_new_cursor($conn);
-                $stid = oci_parse($conn, "begin DPG_MINISTRY_REPORT.DPD_ZONE_WISE(:cur_data,:P_BILL_CYCLE_CODE,:P_ZONE_CODE); end;");
+                $stid = oci_parse($conn, "begin DPG_MINISTRY_REPORT.DPD_MINISTRY_WISE(:cur_data,:P_BILL_CYCLE_CODE); end;");
                 oci_bind_by_name($stid, ":cur_data", $curs, -1, OCI_B_CURSOR);
                 oci_bind_by_name($stid, ":P_BILL_CYCLE_CODE", $P_BILL_CYCLE_CODE, -1, SQLT_CHR);
-                oci_bind_by_name($stid, ":P_ZONE_CODE", $P_ZONE_CODE, -1, SQLT_CHR);
                 oci_execute($stid);
                 oci_execute($curs);
                 // execute query ends
 
                 // show data in table starts
                 echo '<div class="table-responsive-md text_black">';
-                echo "<table class='display' id='zoneWise'>
+                echo "<table class='display' id='ministryWise'>
 
 							<thead>
 								<tr>   
 									<th style='text-align: center;'>SL No.</th>
-									<th style='text-align: left;'>Zone Name</th>
 									<th style='text-align: left;'>Ministry</th>
-									<th style='text-align: right;'>Energy Arr</th>
-									<th style='text-align: right;'>Current Prin</th>
-									<th style='text-align: right;'>Vat Arr</th>
-									<th style='text-align: right;'>Current Vat</th>
+                                    <th style='text-align: right;'>Current Prin</th>
+                                    <th style='text-align: right;'>Prin Arr</th>
 									<th style='text-align: right;'>Surcharge Arr</th>
-									<th style='text-align: right;'>Current LPS</th>
+									<th style='text-align: right;'>Total Arr</th>
 								</tr>
 						    </thead>
                         <tbody>";
@@ -210,10 +175,9 @@ if (!isset($_SESSION['USERNAME'])) {
 
                 // store fetch data in variable array ends
                 $j = 1;
-                $ZONE_CODE = 0;
 
                 // declare variable for grand total 
-                $total_energy_arr = $total_currnet_prin = $total_vat_arr = $total_current_vat = $total_surcharge_arr = $total_current_lps = 0;
+                $total_currnet_prin = $total_prin_arr = $total_surcharge_arr = $total_total_arr = 0;
                 $sum = 0;
 
                 // show result in table starts
@@ -224,36 +188,25 @@ if (!isset($_SESSION['USERNAME'])) {
                         if ($k != "0") {
                             echo "<tr>";
                             echo "<td style='text-align: center;'>" . $j . "</td>"; // $j for displaying SL No.
-                            echo "<td></td>";
-                            echo "<td style='text-align: left;'><b>Zone Total</b></td>";
-                            echo "<td style='text-align: right;'><b>" . number_format((float)$sum_energy_arr, 2, '.', ',') . "</b></td>";
+                            echo "<td style='text-align: left;'><b>Ministry Total</b></td>";
                             echo "<td style='text-align: right;'><b>" . number_format((float)$sum_currnet_prin, 2, '.', ',') . "</b></td>";
-                            echo "<td style='text-align: right;'><b>" . number_format((float)$sum_vat_arr, 2, '.', ',') . "</b></td>";
-                            echo "<td style='text-align: right;'><b>" . number_format((float)$sum_current_vat, 2, '.', ',') . "</b></td>";
+                            echo "<td style='text-align: right;'><b>" . number_format((float)$sum_prin_arr, 2, '.', ',') . "</b></td>";
                             echo "<td style='text-align: right;'><b>" . number_format((float)$sum_surcharge_arr, 2, '.', ',') . "</b></td>";
-                            echo "<td style='text-align: right;'><b>" . number_format((float)$sum_current_lps, 2, '.', ',') . "</b></td>";
-                            $zone_name[] = $output[$k - 1]['ZONE_NAME'];
-                            $zone_total[] = $sum;
+                            echo "<td style='text-align: right;'><b>" . number_format((float)$sum_total_arr, 2, '.', ',') . "</b></td>";
                             echo "</tr>";
 
                             // keep track privious sum 
-                            $total_energy_arr += $sum_energy_arr;
-                            $sum_energy_arr = 0;
-
                             $total_currnet_prin += $sum_currnet_prin;
                             $sum_currnet_prin = 0;
 
-                            $total_vat_arr += $sum_vat_arr;
-                            $sum_vat_arr = 0;
-
-                            $total_current_vat += $sum_current_vat;
-                            $sum_current_vat = 0;
+                            $total_prin_arr += $sum_prin_arr;
+                            $sum_prin_arr = 0;
 
                             $total_surcharge_arr += $sum_surcharge_arr;
                             $sum_surcharge_arr = 0;
 
-                            $total_current_lps += $sum_current_lps;
-                            $sum_current_lps = 0;
+                            $total_total_arr += $sum_total_arr;
+                            $sum_total_arr = 0;
                             // keep track privious sum ends
 
                             $j++;
@@ -263,30 +216,21 @@ if (!isset($_SESSION['USERNAME'])) {
                         // show particular data for first time starts
                         echo "<tr>";
                         echo "<td style='text-align: center;'>" . $j . "</td>";
-                        echo "<td style='text-align: left;'><b>" . $output[$k]['ZONE_NAME'] . "</b></td>";
-                        echo "<td style='text-align: left;'>" . $output[$k]['MINISTRY'] . "</td>";
-
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['ENERGY_ARR'], 2, '.', ',') . "</td>";
-                        $sum_energy_arr += $output[$k]['ENERGY_ARR'];
-
+                        echo "<td style='text-align: left;'>" . $output[$k]['MINISTRY'] . "</b></td>";
                         echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['CURRENT_PRIN'], 2, '.', ',') . "</td>";
                         $sum_currnet_prin += $output[$k]['CURRENT_PRIN'];
 
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['VAT_ARR'], 2, '.', ',') . "</td>";
-                        $sum_vat_arr += $output[$k]['VAT_ARR'];
-
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['CURRENT_VAT'], 2, '.', ',') . "</td>";
-                        $sum_current_vat += $output[$k]['CURRENT_VAT'];
+                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['PRIN_ARR'], 2, '.', ',') . "</td>";
+                        $sum_prin_arr += $output[$k]['PRIN_ARR'];
 
                         echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['SURCHARGE_ARR'], 2, '.', ',') . "</td>";
                         $sum_surcharge_arr += $output[$k]['SURCHARGE_ARR'];
 
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['CURRENT_LPS'], 2, '.', ',') . "</td>";
-                        $sum_current_lps += $output[$k]['CURRENT_LPS'];
+                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['TOTAL_ARR'], 2, '.', ',') . "</td>";
+                        $sum_total_arr += $output[$k]['TOTAL_ARR'];
 
                         echo "</tr>";
 
-                        $ZONE_CODE = $output[$k]['ZONE_CODE'];
                         $j++;
                         // show particular data for first time ends
                     } 
@@ -294,26 +238,19 @@ if (!isset($_SESSION['USERNAME'])) {
                         // show particular rest data starts
                         echo "<tr>";
                         echo "<td style='text-align: center;'>" . $j . "</td>";
-                        echo "<td></td>";
-                        echo "<td style='text-align: left;'>" . $output[$k]['MINISTRY'] . "</td>";
-
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['ENERGY_ARR'], 2, '.', ',') . "</td>";
-                        $sum_energy_arr += $output[$k]['ENERGY_ARR'];
+                        echo "<td style='text-align: left;'>" . $output[$k]['MINISTRY'] . "</b></td>";
 
                         echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['CURRENT_PRIN'], 2, '.', ',') . "</td>";
                         $sum_currnet_prin += $output[$k]['CURRENT_PRIN'];
 
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['VAT_ARR'], 2, '.', ',') . "</td>";
-                        $sum_vat_arr += $output[$k]['VAT_ARR'];
-
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['CURRENT_VAT'], 2, '.', ',') . "</td>";
-                        $sum_current_vat += $output[$k]['CURRENT_VAT'];
+                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['PRIN_ARR'], 2, '.', ',') . "</td>";
+                        $sum_prin_arr += $output[$k]['PRIN_ARR'];
 
                         echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['SURCHARGE_ARR'], 2, '.', ',') . "</td>";
                         $sum_surcharge_arr += $output[$k]['SURCHARGE_ARR'];
 
-                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['CURRENT_LPS'], 2, '.', ',') . "</td>";
-                        $sum_current_lps += $output[$k]['CURRENT_LPS'];
+                        echo "<td style='text-align: right;'>" . number_format((float)$output[$k]['TOTAL_ARR'], 2, '.', ',') . "</td>";
+                        $sum_total_arr += $output[$k]['TOTAL_ARR'];
 
                         echo "</tr>";
                         $j++;
@@ -323,45 +260,22 @@ if (!isset($_SESSION['USERNAME'])) {
                 // show result in table ends
 
                 // add last total with privious grand total 
-                $total_energy_arr += $sum_energy_arr;
                 $total_currnet_prin += $sum_currnet_prin;
-                $total_vat_arr += $sum_vat_arr;
-                $total_current_vat += $sum_current_vat;
+                $total_prin_arr += $sum_prin_arr;
                 $total_surcharge_arr += $sum_surcharge_arr;
-                $total_current_lps += $sum_current_lps;
+                $total_total_arr += $sum_total_arr;
                 // add last total with privious grand total ends
 
                 // last indivisual total starts
                 echo "<tr>";
                 echo "<td style='text-align: center;'>" . $j . "</td>"; // $j for displaying SL No.
-                echo "<td></td>";
-                echo "<td style='text-align: left;'><b>Zone Total</b></td>";
-                echo "<td style='text-align: right;'><b>" . number_format((float)$sum_energy_arr, 2, '.', ',') . "</b></td>";
+                echo "<td style='text-align: left;'><b>Ministry Total</b></td>";
                 echo "<td style='text-align: right;'><b>" . number_format((float)$sum_currnet_prin, 2, '.', ',') . "</b></td>";
-                echo "<td style='text-align: right;'><b>" . number_format((float)$sum_vat_arr, 2, '.', ',') . "</b></td>";
-                echo "<td style='text-align: right;'><b>" . number_format((float)$sum_current_vat, 2, '.', ',') . "</b></td>";
+                echo "<td style='text-align: right;'><b>" . number_format((float)$sum_prin_arr, 2, '.', ',') . "</b></td>";
                 echo "<td style='text-align: right;'><b>" . number_format((float)$sum_surcharge_arr, 2, '.', ',') . "</b></td>";
-                echo "<td style='text-align: right;'><b>" . number_format((float)$sum_current_lps, 2, '.', ',') . "</b></td>";
-                $zone_name[] = $output[$k - 1]['ZONE_NAME'];
-                $zone_total[] = $sum;
+                echo "<td style='text-align: right;'><b>" . number_format((float)$sum_total_arr, 2, '.', ',') . "</b></td>";
                 echo "</tr>";
                 // last indivisual total ends
-
-                // show grand total starts
-                if ($P_ZONE_CODE == '%') {
-                    echo "<tr>";
-                    echo "<td style='text-align: center;'>" . ++$j . "</td>";
-                    echo "<td></td>";
-                    echo "<td style='text-align: left;'><b>Grand Total</b></td>";
-                    echo "<td style='text-align: right;'><b>" . number_format((float)$total_energy_arr, 2, '.', ',') . "</b></td>";
-                    echo "<td style='text-align: right;'><b>" . number_format((float)$total_currnet_prin, 2, '.', ',') . "</b></td>";
-                    echo "<td style='text-align: right;'><b>" . number_format((float)$total_vat_arr, 2, '.', ',') . "</b></td>";
-                    echo "<td style='text-align: right;'><b>" . number_format((float)$total_current_vat, 2, '.', ',') . "</b></td>";
-                    echo "<td style='text-align: right;'><b>" . number_format((float)$total_surcharge_arr, 2, '.', ',') . "</b></td>";
-                    echo "<td style='text-align: right;'><b>" . number_format((float)$total_current_lps, 2, '.', ',') . "</b></td>";
-                    echo "</tr>";
-                }
-                // show grand total ends
 
                 echo '</tbody>';
                 echo '</table>';
@@ -400,19 +314,19 @@ if (!isset($_SESSION['USERNAME'])) {
     <!-- show data in datatable starts  -->
     <script>
         $(document).ready(function() {
-            $('#zoneWise').DataTable({
+            $('#ministryWise').DataTable({
                 "columnDefs": [{
                         "targets": [0],
                         "className": 'dt-center text-center',
                         "orderable": true
                     },
                     {
-                        "targets": [1, 2],
+                        "targets": [1],
                         "className": 'dt-left',
                         "orderable": false
                     },
                     {
-                        "targets": [3, 4, 5, 6, 7, 8],
+                        "targets": [2, 3, 4, 5],
                         "className": 'dt-right',
                         "orderable": false
                     }
@@ -468,7 +382,6 @@ if (!isset($_SESSION['USERNAME'])) {
                             "<strong class='lbl_title' style='font-size: 1.7rem; color:#000;margin-right:1.5rem;'>" +
                             "Bangladesh Power Development Board </strong><br>" +
                             "<label style='font-weight:normal;font-size: 1.4rem; color:#000;'>Ministry Wise Arrear Report</label><br>" +
-                            "<label style='font-weight:normal;font-size: 1.4rem; color:#000;'>(Zone Wise)</label><br>" +
                             "<label style='font-weight:normal;font-size: 1.4rem; color:#000;'>For The Month : " +
                             "<?php echo $bill_month; ?>" +
                             "</label>" +
@@ -493,4 +406,5 @@ if (!isset($_SESSION['USERNAME'])) {
     </script>
     <!-- show data in datatable ends  -->
 </body>
+
 </html>
